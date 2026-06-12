@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulir Inspeksi & Pricing HP - SOP Genarunika</title>
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --bg: #f8fafc;
+            --border: #cbd5e1;
+        }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background-color: var(--bg);
+            color: #333;
+            padding: 20px;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            background: #fff;
+            max-width: 500px;
+            width: 100%;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            color: var(--primary);
+            margin-top: 0;
+            font-size: 20px;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 10px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+        }
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #1e40af;
+        }
+        .note {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 15px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>SOP Kalkulator Harga HP</h2>
+    
+    <form id="hpForm">
+        <div class="form-group">
+            <label for="merk">Merek & Tipe HP (Contoh: Samsung A55 5G)</label>
+            <input type="text" id="merk" required placeholder="Masukkan tipe HP...">
+        </div>
+
+        <div class="form-group">
+            <label for="ram">Kapasitas RAM / ROM</label>
+            <input type="text" id="ram" required placeholder="Contoh: 8/256 GB">
+        </div>
+
+        <div class="form-group">
+            <label for="harga">Harga Pasaran Bekas Termurah (Shopee/Tokopedia)</label>
+            <input type="number" id="harga" required placeholder="Contoh: 3800000 (tanpa titik)">
+        </div>
+
+        <div class="form-group">
+            <label for="fisik">Minus Fisik</label>
+            <select id="fisik">
+                <option value="Mulus total (0%)">Mulus total</option>
+                <option value="Lecet ringan pemakaian (5%)">Lecet ringan pemakaian</option>
+                <option value="Lecet berat / dent body (10%)">Lecet berat / dent body</option>
+                <option value="LCD retak kaca luar (15%)">LCD retak kaca luar</option>
+                <option value="LCD shadow / ghost touch (20%)">LCD shadow / ghost touch</option>
+                <option value="LCD non-ori / bekas lem (25%)">LCD non-ori / bekas lem</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="kelengkapan">Minus Kelengkapan (Centang jika tidak ada)</label>
+            <textarea id="kelengkapan" rows="3" placeholder="Contoh: Dus tidak ada, Charger KW, Nota hilang..."></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="tambahan">Tambahan Aksesoris (Nilai Plus)</label>
+            <textarea id="tambahan" rows="2" placeholder="Contoh: Ada 3 case tambahan, Tempered glass baru..."></textarea>
+        </div>
+
+        <button type="button" onclick="generatePrompt()">Hitung & Eksekusi di GPT</button>
+    </form>
+    
+    <div class="note">Data akan otomatis dikonversi menjadi prompt rahasia SOP Margin 25% dan dialihkan ke ChatGPT.</div>
+</div>
+
+<script>
+    function generatePrompt() {
+        // Mengambil nilai dari form
+        const merk = document.getElementById('merk').value;
+        const ram = document.getElementById('ram').value;
+        const harga = document.getElementById('harga').value;
+        const fisik = document.getElementById('fisik').value;
+        const kelengkapan = document.getElementById('kelengkapan').value || 'Lengkap original';
+        const tambahan = document.getElementById('tambahan').value || 'Tidak ada tambahan';
+
+        // Validasi input wajib
+        if(!merk || !ram || !harga) {
+            alert('Mohon lengkapi Merek, RAM, dan Harga Pasaran!');
+            return;
+        }
+
+        // Menyusun instruksi prompt tingkat ahli (hidden context)
+        const promptString = `Sebagai asisten manajer pembelian HP second, tolong evaluasi penawaran unit ini menggunakan Sistem SOP Margin 25% (Harga Beli Dasar = Harga Pasar Termurah x 0,75 - Total Penalti).
+
+DATA UNIT DARI SALES LAPANGAN:
+- Merek & Tipe: ${merk}
+- RAM / ROM: ${ram}
+- Harga Pasar Second Termurah (Acuan): Rp ${Number(harga).toLocaleString('id-ID')}
+- Kondisi Fisik: ${fisik}
+- Kondisi Kelengkapan (Minus): ${kelengkapan}
+- Bonus Aksesoris: ${tambahan}
+
+INSTRUKSI OUTPUT YANG DIBUTUHKAN:
+1. Hitung Harga Beli Dasar (75% dari harga acuan pasar).
+2. Tentukan Persentase & Nominal Penalti berdasarkan minus fisik dan kelengkapan (rujuk pada SOP umum barang bekas).
+3. Tentukan HARGA BELI FINAL (Harga Dasar - Penalti).
+4. Buatkan skrip komunikasi negosiasi (Copywriting Tawar) untuk sales person agar bisa menawar langsung ke penjual dengan halus, berbasis data tanpa membuat penjual marah (Gunakan teknik Visual Data Anchoring & The Soft Cushion).`;
+
+        // Encode string ke format URL
+        const encodedPrompt = encodeURIComponent(promptString);
+
+        // Buka ChatGPT di tab baru dan otomatis mengisi kotak prompt
+        const gptUrl = `https://chatgpt.com/?q=${encodedPrompt}`;
+        window.open(gptUrl, '_blank');
+    }
+</script>
+
+</body>
+</html>
