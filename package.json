@@ -1,0 +1,13 @@
+{
+  "name": "hp-pricing-sop",
+  "version": "1.0.0",
+  "description": "HP Pricing SOP Calculator - Vercel deployment",
+  "private": true,
+  "scripts": {
+    "dev": "python -m http.server 3000",
+    "build": "echo 'Static HTML - no build needed'",
+    "start": "python -m http.server 3000"
+  },
+  "keywords": ["hp-pricing", "calculator", "sop", "margin"],
+  "author": "Uyabmberr"
+}
